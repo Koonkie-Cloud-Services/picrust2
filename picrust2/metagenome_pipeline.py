@@ -38,6 +38,7 @@ def run_metagenome_pipeline(input_seqabun,
 
     pred_function = pd.read_csv(function, sep="\t", dtype={'sequence': str})
     pred_function.set_index('sequence', drop=True, inplace=True)
+    if 'closest_reference_genome' in pred_function.columns: pred_function.drop('closest_reference_genome', axis=1, inplace=True)
 
     # If NSTI column present then remove all rows with value above specified
     # max value. Also, remove NSTI column (in both dataframes).
@@ -153,7 +154,7 @@ def strat_funcs_by_samples(func_abun, sample_abun, rare_seqs=[],
 
     # Return dataframe and also unstratified dataframe if specified.
     if return_unstrat:
-        return(strat_func, strat_func.groupby(level='function', axis=0).sum())
+        return(strat_func, strat_func.groupby(level='function').sum())
     else:
         return(strat_func)
 
@@ -392,7 +393,7 @@ def contrib_to_unstrat(contrib_table, sample_order=None):
     contrib_table = pd.pivot_table(data=contrib_table, columns='sample',
                                    index='function',
                                    values='taxon_function_abun',
-                                   aggfunc=np.sum, fill_value=0)
+                                   aggfunc='sum', fill_value=0)
 
     contrib_table.index.name = None
     contrib_table.columns.name = None
